@@ -1,0 +1,6 @@
+pygame:
+  container_name: pygame-teste
+  build: .
+  volumes:
+    - .:/pygame
+    - /tmp/.X11-unix:/tmp/.X11-unix
