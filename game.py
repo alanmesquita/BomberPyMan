@@ -6,7 +6,7 @@ import pygame.time
 from events import AVAIABLE_EVENTS
 from consts import SCREEN_WIDTH, SCREEN_HEIGHT, BACKGROUND_COLOR, MOVEMENT_KEYS
 from scenarios import SCENARIOS
-from elements.wall import Wall
+from elements.wall import Wall, LazyWall
 from elements.player import Player
 
 
@@ -28,6 +28,8 @@ class MapManager(object):
             for col in row:
                 if col == '#':
                     self.itens = Wall(x, y)
+                elif col == 'L':
+                    self.itens = LazyWall(x, y)
                 x += 16
             y += 16
             x = 0
@@ -43,6 +45,7 @@ class GameMain(object):
         self.map_manager = MapManager()
         self.map_manager.create_from_map(SCENARIOS['1']().layout)
         self.player = Player(16, 16)
+        self.last_movment = False
 
     def loop(self):
         clock = self._get_clock()
@@ -66,9 +69,14 @@ class GameMain(object):
     def _keyboard_event(self):
         key = pygame.key.get_pressed()
 
-        for movement_key in MOVEMENT_KEYS:
-            if key[movement_key]:
-                self.player.move(movement_key, self.map_manager.itens)
+        movement_keys = [x for x in MOVEMENT_KEYS if key[x]]
+
+        if movement_keys:
+            if len(movement_keys) > 1:
+                if self.last_movment:
+                    movement_keys.remove(self.last_movment)
+
+            self.player.move(movement_keys[0], self.map_manager.itens)
 
     def _get_clock(self):
         return pygame.time.Clock()
